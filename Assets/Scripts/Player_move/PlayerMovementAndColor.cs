@@ -4,159 +4,277 @@ using TMPro;
 
 public class PlayerMovementAndCollision : MonoBehaviour
 {
-    public float moveSpeed = 5.0f; // 플레이어 이동 속도
-    public Color redColor = Color.red; // 오른쪽 클릭 시 색상
-    public Color blueColor = Color.blue; // 왼쪽 클릭 시 색상
-    public Color purpleColor = Color.magenta; // 동시에 클릭 시 색상
-    public TextMeshProUGUI scoreText; // 점수 표시용 UI 텍스트
-    public GameObject gameOverPanel; // 게임 오버 창
+    public float moveSpeed = 5.0f;
+    public Color redColor = Color.red;
+    public Color blueColor = Color.blue;
+    public Color purpleColor = Color.magenta;
+
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI FinalScoreText;
+    public GameObject gameOverPanel;
 
     private SpriteRenderer spriteRenderer;
-    private float score = 0.0f; // 현재 점수
-    private bool isGameOver = false; // 게임 종료 상태
+    private Rigidbody2D rb;
+    private float score = 0.0f;
+    private bool isGameOver = false;
+
+    private float leftClickTime = -1.0f;
+    private float rightClickTime = -1.0f;
+    private float simultaneousClickThreshold = 0.08f;
 
     void Start()
     {
-        // SpriteRenderer 가져오기
+        Debug.Log("Start method called in PlayerMovementAndCollision");
+
         spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer == null)
+        rb = GetComponent<Rigidbody2D>();
+
+        if (spriteRenderer == null || rb == null)
         {
-            Debug.LogError("SpriteRenderer component missing on the player!");
+            Debug.LogError("Missing essential components! SpriteRenderer or Rigidbody2D is null.");
             return;
         }
 
-        // 점수 초기화
+        rb.linearVelocity = new Vector2(moveSpeed, 0);
+        Debug.Log($"Initial velocity set to {rb.linearVelocity}");
+
         if (scoreText != null)
         {
-            scoreText.text = "Score: 0";
+            scoreText.text = "0";
+            Debug.Log("Score text initialized to 0.");
         }
 
-        // 게임 오버 창 숨기기
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(false);
+            Debug.Log("GameOver panel set to inactive.");
         }
     }
+
+
+    public void InitializePlayer()
+    {
+        Debug.Log("InitializePlayer method called.");
+
+        // ?? ? ?? ???
+        transform.position = Vector3.zero; // ?? ?? ??
+        rb.linearVelocity = new Vector2(moveSpeed, 0); // ?? ?? ??
+        rb.angularVelocity = 0f; // ?? ?? ???
+        Debug.Log($"Player position and velocity initialized: Position={transform.position}, Velocity={rb.linearVelocity}");
+
+        // ?? ???
+        score = 0.0f;
+        if (scoreText != null)
+        {
+            scoreText.text = "0";
+            scoreText.gameObject.SetActive(true);
+            Debug.Log("Score text reset to 0 and made visible.");
+        }
+
+        // ?? ?? ?? ???
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(false);
+            Debug.Log("GameOver panel deactivated.");
+        }
+
+        isGameOver = false; // ?? ?? ?? ???
+        Debug.Log("Player state reset. isGameOver set to false.");
+    }
+
+
 
     void Update()
     {
         if (isGameOver)
+        {
+            Debug.Log("Update skipped because game is over.");
             return;
+        }
 
-        // 플레이어 이동
-        HandleMovement();
-
-        // 색상 변경
-        HandleColorChange();
-
-        // 점수 증가
+        HandleInput();
         UpdateScore();
     }
 
-    private void HandleMovement()
+    private void HandleInput()
     {
-        // 현재 방향으로 계속 이동
-        transform.position += new Vector3(moveSpeed * Time.deltaTime, 0, 0);
-    }
+        bool isLeftPressed = false;
+        bool isRightPressed = false;
 
-    private void HandleColorChange()
-    {
-        // 터치 또는 마우스 클릭 확인
-        bool isLeftClicked = false;
-        bool isRightClicked = false;
+        // ??? ?? ??
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            isLeftPressed = true;
+            leftClickTime = Time.time;
+            Debug.Log($"Left arrow pressed. Time: {leftClickTime}");
+        }
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            isRightPressed = true;
+            rightClickTime = Time.time;
+            Debug.Log($"Right arrow pressed. Time: {rightClickTime}");
+        }
 
-        if (Input.touchCount > 0) // 터치 입력이 있는 경우
+        // ??? ?? ?? ??
+        if (Input.touchCount > 0)
         {
             foreach (Touch touch in Input.touches)
             {
                 if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Stationary)
                 {
                     if (touch.position.x < Screen.width / 2)
-                        isLeftClicked = true;
-                    else
-                        isRightClicked = true;
+                    {
+                        isLeftPressed = true;
+                        leftClickTime = Time.time;
+                        Debug.Log($"Left screen touched. Time: {leftClickTime}");
+                    }
+                    else if (touch.position.x >= Screen.width / 2)
+                    {
+                        isRightPressed = true;
+                        rightClickTime = Time.time;
+                        Debug.Log($"Right screen touched. Time: {rightClickTime}");
+                    }
                 }
             }
         }
-        else if (Input.GetMouseButton(0)) // 마우스 클릭 확인
-        {
-            if (Input.mousePosition.x < Screen.width / 2)
-                isLeftClicked = true;
-            else
-                isRightClicked = true;
-        }
 
-        // 색상 변경 로직
-        if (isLeftClicked && isRightClicked)
+        // ? ?? ??
+        if (Mathf.Abs(leftClickTime - rightClickTime) <= simultaneousClickThreshold &&
+            leftClickTime > 0 && rightClickTime > 0)
         {
-            spriteRenderer.color = purpleColor; // 동시에 클릭 시 보라색
+            spriteRenderer.color = purpleColor;
+            Debug.Log("Simultaneous input detected. Player color set to purple.");
         }
-        else if (isLeftClicked)
+        else if (isLeftPressed)
         {
-            spriteRenderer.color = blueColor; // 왼쪽 클릭 시 파란색
+            spriteRenderer.color = blueColor;
+            Debug.Log("Left input detected. Player color set to blue.");
         }
-        else if (isRightClicked)
+        else if (isRightPressed)
         {
-            spriteRenderer.color = redColor; // 오른쪽 클릭 시 빨간색
+            spriteRenderer.color = redColor;
+            Debug.Log("Right input detected. Player color set to red.");
         }
     }
 
+
     private void UpdateScore()
     {
-        score += Time.deltaTime; // 시간에 따라 점수 증가
+        score += Time.deltaTime;
         if (scoreText != null)
         {
-            scoreText.text = "Score: " + Mathf.FloorToInt(score).ToString();
+            scoreText.text = Mathf.FloorToInt(score).ToString();
+            Debug.Log($"Score updated: {scoreText.text}");
         }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (isGameOver)
-            return;
+        Debug.Log($"OnCollisionEnter2D called with {collision.gameObject.name}");
 
-        // 충돌한 객체의 SpriteRenderer 가져오기
+        if (isGameOver)
+        {
+            Debug.Log("Collision ignored because game is over.");
+            return;
+        }
+
         SpriteRenderer otherRenderer = collision.gameObject.GetComponent<SpriteRenderer>();
         if (otherRenderer != null)
         {
-            if (otherRenderer.color == spriteRenderer.color)
+            Debug.Log($"Collision detected. Player color: {spriteRenderer.color}, Other color: {otherRenderer.color}");
+
+            if (otherRenderer.color != spriteRenderer.color)
             {
-                // 색상이 같으면 방향 반전
-                moveSpeed *= -1; // 이동 방향 반전
+                Debug.Log("Game over condition met. Triggering GameOver.");
+                GameOver();
             }
             else
             {
-                // 색상이 다르면 게임 종료
-                GameOver();
+                Debug.Log("Same color collision. No GameOver.");
             }
         }
+        else
+        {
+            Debug.LogWarning("Collision object does not have a SpriteRenderer.");
+        }
     }
-
-
 
     private void GameOver()
     {
+        Debug.Log("GameOver method called in PlayerMovementAndCollision.");
+
         isGameOver = true;
 
-        // UI에 Game Over 창 활성화
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            Debug.Log("Player velocity set to zero.");
+        }
+
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(true);
-            Text finalScoreText = gameOverPanel.transform.Find("FinalScoreText").GetComponent<Text>();
-            if (finalScoreText != null)
+            Debug.Log("GameOver panel activated.");
+            if (FinalScoreText != null)
             {
-                finalScoreText.text = "Score: " + Mathf.FloorToInt(score).ToString();
+                FinalScoreText.text = Mathf.FloorToInt(score).ToString();
+                Debug.Log($"Final score displayed: {FinalScoreText.text}");
             }
         }
 
-        // 플레이어 동작 멈추기
-        moveSpeed = 0.0f;
+        if (scoreText != null)
+        {
+            scoreText.gameObject.SetActive(false);
+            Debug.Log("Score text hidden.");
+        }
+
+        // Global GameManager logic
+        GameManager gameManager = FindObjectOfType<GameManager>();
+        if (gameManager != null)
+        {
+            gameManager.GameOver();
+            Debug.Log("GameManager.GameOver called.");
+        }
     }
 
-    // 게임 재시작 (버튼에서 호출)
+
     public void RestartGame()
     {
-        // 현재 씬 다시 로드
-        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        Debug.Log("RestartGame method called.");
+
+        // ???? ?? ? ?? ???
+        transform.position = Vector3.zero;
+        rb.linearVelocity = new Vector2(moveSpeed, 0);
+        Debug.Log($"Player reset to position {transform.position} with velocity {rb.linearVelocity}");
+
+        // ?? ???
+        score = 0.0f;
+        if (scoreText != null)
+        {
+            scoreText.text = "0";
+            scoreText.gameObject.SetActive(true);
+            Debug.Log("Score text reset to 0 and made visible.");
+        }
+
+        // ?? ?? ?? ???
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(false);
+            Debug.Log("GameOver panel deactivated.");
+        }
+
+        // GameManager? StartGame ??
+        GameManager gameManager = FindObjectOfType<GameManager>();
+        if (gameManager != null)
+        {
+            gameManager.StartGame();
+            Debug.Log("StartGame method called from RestartGame.");
+        }
+
+        // ?? ?? ?? ???
+        isGameOver = false;
+        Debug.Log("Game state reset. isGameOver set to false.");
     }
+
+
 }
