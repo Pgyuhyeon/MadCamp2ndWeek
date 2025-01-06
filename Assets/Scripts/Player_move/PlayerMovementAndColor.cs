@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Advertisements;
+using UnityEditor.Advertisements;
 
 public class PlayerMovementAndCollision : MonoBehaviour
 {
@@ -202,7 +204,7 @@ public class PlayerMovementAndCollision : MonoBehaviour
     private void GameOver()
     {
         Debug.Log("GameOver method called in PlayerMovementAndCollision.");
-
+        Advertisement.Show("test_ad");
         isGameOver = true;
 
         if (rb != null)
@@ -275,6 +277,7 @@ public class PlayerMovementAndCollision : MonoBehaviour
         isGameOver = false;
         Debug.Log("Game state reset. isGameOver set to false.");
     }
+
 
 
 }
