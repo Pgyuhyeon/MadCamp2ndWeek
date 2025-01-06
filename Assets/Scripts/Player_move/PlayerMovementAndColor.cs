@@ -4,14 +4,17 @@ using TMPro;
 
 public class PlayerMovementAndCollision : MonoBehaviour
 {
+    [Header("Player Settings")]
     public float moveSpeed = 5.0f;
     public Color redColor = Color.red;
     public Color blueColor = Color.blue;
     public Color purpleColor = Color.magenta;
 
+    [Header("UI Elements")]
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI FinalScoreText;
     public GameObject gameOverPanel;
+    public GameObject gmaeUIPanel;
 
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
@@ -24,8 +27,14 @@ public class PlayerMovementAndCollision : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("Start method called in PlayerMovementAndCollision");
+        InitializePlayer();
+    }
 
+    public void InitializePlayer()
+    {
+        Debug.Log("InitializePlayer method called.");
+
+        // Initialize components
         spriteRenderer = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
 
@@ -35,54 +44,26 @@ public class PlayerMovementAndCollision : MonoBehaviour
             return;
         }
 
+        // Reset player position and velocity
+        transform.position = Vector3.zero;
         rb.linearVelocity = new Vector2(moveSpeed, 0);
-        Debug.Log($"Initial velocity set to {rb.linearVelocity}");
+        rb.angularVelocity = 0f;
+        Debug.Log($"Player initialized: Position={transform.position}, Velocity={rb.linearVelocity}");
 
-        if (scoreText != null)
-        {
-            scoreText.text = "0";
-            Debug.Log("Score text initialized to 0.");
-        }
-
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(false);
-            Debug.Log("GameOver panel set to inactive.");
-        }
-    }
-
-
-    public void InitializePlayer()
-    {
-        Debug.Log("InitializePlayer method called.");
-
-        // ?? ? ?? ???
-        transform.position = Vector3.zero; // ?? ?? ??
-        rb.linearVelocity = new Vector2(moveSpeed, 0); // ?? ?? ??
-        rb.angularVelocity = 0f; // ?? ?? ???
-        Debug.Log($"Player position and velocity initialized: Position={transform.position}, Velocity={rb.linearVelocity}");
-
-        // ?? ???
+        // Reset score
         score = 0.0f;
-        if (scoreText != null)
-        {
-            scoreText.text = "0";
-            scoreText.gameObject.SetActive(true);
-            Debug.Log("Score text reset to 0 and made visible.");
-        }
+        UpdateScoreText();
 
-        // ?? ?? ?? ???
+        // Hide GameOver panel
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(false);
             Debug.Log("GameOver panel deactivated.");
         }
 
-        isGameOver = false; // ?? ?? ?? ???
+        isGameOver = false;
         Debug.Log("Player state reset. isGameOver set to false.");
     }
-
-
 
     void Update()
     {
@@ -101,21 +82,19 @@ public class PlayerMovementAndCollision : MonoBehaviour
         bool isLeftPressed = false;
         bool isRightPressed = false;
 
-        // ??? ?? ??
+        // Handle keyboard input
         if (Input.GetKey(KeyCode.LeftArrow))
         {
             isLeftPressed = true;
             leftClickTime = Time.time;
-            Debug.Log($"Left arrow pressed. Time: {leftClickTime}");
         }
         if (Input.GetKey(KeyCode.RightArrow))
         {
             isRightPressed = true;
             rightClickTime = Time.time;
-            Debug.Log($"Right arrow pressed. Time: {rightClickTime}");
         }
 
-        // ??? ?? ?? ??
+        // Handle touch input
         if (Input.touchCount > 0)
         {
             foreach (Touch touch in Input.touches)
@@ -126,41 +105,49 @@ public class PlayerMovementAndCollision : MonoBehaviour
                     {
                         isLeftPressed = true;
                         leftClickTime = Time.time;
-                        Debug.Log($"Left screen touched. Time: {leftClickTime}");
                     }
                     else if (touch.position.x >= Screen.width / 2)
                     {
                         isRightPressed = true;
                         rightClickTime = Time.time;
-                        Debug.Log($"Right screen touched. Time: {rightClickTime}");
                     }
                 }
             }
         }
 
-        // ? ?? ??
+        // Handle simultaneous input
         if (Mathf.Abs(leftClickTime - rightClickTime) <= simultaneousClickThreshold &&
             leftClickTime > 0 && rightClickTime > 0)
         {
-            spriteRenderer.color = purpleColor;
-            Debug.Log("Simultaneous input detected. Player color set to purple.");
+            ChangePlayerColor(purpleColor);
         }
         else if (isLeftPressed)
         {
-            spriteRenderer.color = blueColor;
-            Debug.Log("Left input detected. Player color set to blue.");
+            ChangePlayerColor(blueColor);
         }
         else if (isRightPressed)
         {
-            spriteRenderer.color = redColor;
-            Debug.Log("Right input detected. Player color set to red.");
+            ChangePlayerColor(redColor);
         }
     }
 
+    private void ChangePlayerColor(Color newColor)
+    {
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = newColor;
+            Debug.Log($"Player color changed to {newColor}");
+        }
+    }
 
     private void UpdateScore()
     {
         score += Time.deltaTime;
+        UpdateScoreText();
+    }
+
+    private void UpdateScoreText()
+    {
         if (scoreText != null)
         {
             scoreText.text = Mathf.FloorToInt(score).ToString();
@@ -170,111 +157,173 @@ public class PlayerMovementAndCollision : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log($"OnCollisionEnter2D called with {collision.gameObject.name}");
-
         if (isGameOver)
         {
             Debug.Log("Collision ignored because game is over.");
             return;
         }
 
-        SpriteRenderer otherRenderer = collision.gameObject.GetComponent<SpriteRenderer>();
-        if (otherRenderer != null)
+        if (collision.gameObject.CompareTag("Wall"))
         {
-            Debug.Log($"Collision detected. Player color: {spriteRenderer.color}, Other color: {otherRenderer.color}");
-
-            if (otherRenderer.color != spriteRenderer.color)
+            SpriteRenderer wallRenderer = collision.gameObject.GetComponent<SpriteRenderer>();
+            if (wallRenderer != null)
             {
-                Debug.Log("Game over condition met. Triggering GameOver.");
-                GameOver();
+                if (wallRenderer.color != spriteRenderer.color)
+                {
+                    Debug.Log("Wall color does not match. Game Over triggered.");
+                    GameOver();
+                }
+                else
+                {
+                    // ??? ????? ?? ???
+                    Vector2 pushDirection = new Vector2(-Mathf.Sign(rb.linearVelocity.x), 0); // ?? ??
+                    transform.position += (Vector3)pushDirection * 0.1f; // ??? ?? ???
+
+                    // ?? ??
+                    float currentSpeed = Mathf.Abs(rb.linearVelocity.x);
+                    if (currentSpeed < 0.1f)
+                    {
+                        currentSpeed = moveSpeed; // ?? ?? ??
+                    }
+                    rb.linearVelocity = new Vector2(-currentSpeed, rb.linearVelocity.y);
+
+                    Debug.Log($"Wall color matches. Player direction reversed. New Velocity: {rb.linearVelocity}");
+                }
             }
             else
             {
-                Debug.Log("Same color collision. No GameOver.");
+                Debug.LogWarning("Wall does not have a SpriteRenderer.");
+            }
+        }
+    }
+
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (isGameOver)
+        {
+            Debug.Log("Trigger ignored because game is over.");
+            return;
+        }
+
+        if (collision.CompareTag("Obstacle"))
+        {
+            SpriteRenderer obstacleRenderer = collision.GetComponent<SpriteRenderer>();
+            if (obstacleRenderer != null)
+            {
+                if (obstacleRenderer.color == spriteRenderer.color)
+                {
+                    AddScore(1);
+                    TriggerCollisionEvent(collision.gameObject);
+                    Destroy(collision.gameObject); // ??? ??
+                    Debug.Log("Obstacle destroyed. Score increased.");
+                }
+                else
+                {
+                    Destroy(collision.gameObject); // ??? ??
+                    Debug.Log("Obstacle destroyed. Game Over triggered.");
+                    GameOver();
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+    private void HandleObstacleCollision(GameObject obstacle)
+    {
+        SpriteRenderer obstacleRenderer = obstacle.GetComponent<SpriteRenderer>();
+        if (obstacleRenderer != null)
+        {
+            if (obstacleRenderer.color == spriteRenderer.color)
+            {
+                AddScore(1);
+                TriggerCollisionEvent(obstacle);
+                Destroy(obstacle);
+            }
+            else
+            {
+                GameOver();
+            }
+        }
+    }
+
+    private void HandleOtherCollision(GameObject otherObject)
+    {
+        SpriteRenderer otherRenderer = otherObject.GetComponent<SpriteRenderer>();
+        if (otherRenderer != null)
+        {
+            if (otherRenderer.color != spriteRenderer.color)
+            {
+                GameOver();
             }
         }
         else
         {
-            Debug.LogWarning("Collision object does not have a SpriteRenderer.");
+            Debug.LogWarning($"Collision with object '{otherObject.name}' without a SpriteRenderer.");
         }
+    }
+
+    private void TriggerCollisionEvent(GameObject obj)
+    {
+        // ??? ?? ??
+        ParticleSystem particle = obj.GetComponent<ParticleSystem>();
+        if (particle != null)
+        {
+            particle.transform.parent = null;
+            particle.Play();
+            Destroy(particle.gameObject, particle.main.duration);
+        }
+
+        
+    }
+
+
+    private void AddScore(int points)
+    {
+        score += points;
+        UpdateScoreText();
     }
 
     private void GameOver()
     {
-        Debug.Log("GameOver method called in PlayerMovementAndCollision.");
-
         isGameOver = true;
 
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
-            Debug.Log("Player velocity set to zero.");
         }
 
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(true);
-            Debug.Log("GameOver panel activated.");
             if (FinalScoreText != null)
             {
                 FinalScoreText.text = Mathf.FloorToInt(score).ToString();
-                Debug.Log($"Final score displayed: {FinalScoreText.text}");
             }
         }
 
-        if (scoreText != null)
+        if (gmaeUIPanel != null)
         {
-            scoreText.gameObject.SetActive(false);
-            Debug.Log("Score text hidden.");
+            gmaeUIPanel.SetActive(false);
         }
 
-        // Global GameManager logic
-        GameManager gameManager = FindObjectOfType<GameManager>();
-        if (gameManager != null)
-        {
-            gameManager.GameOver();
-            Debug.Log("GameManager.GameOver called.");
-        }
+        Debug.Log("Game Over triggered.");
     }
-
 
     public void RestartGame()
     {
-        Debug.Log("RestartGame method called.");
+        InitializePlayer();
 
-        // ???? ?? ? ?? ???
-        transform.position = Vector3.zero;
-        rb.linearVelocity = new Vector2(moveSpeed, 0);
-        Debug.Log($"Player reset to position {transform.position} with velocity {rb.linearVelocity}");
-
-        // ?? ???
-        score = 0.0f;
-        if (scoreText != null)
-        {
-            scoreText.text = "0";
-            scoreText.gameObject.SetActive(true);
-            Debug.Log("Score text reset to 0 and made visible.");
-        }
-
-        // ?? ?? ?? ???
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(false);
-            Debug.Log("GameOver panel deactivated.");
-        }
-
-        // GameManager? StartGame ??
         GameManager gameManager = FindObjectOfType<GameManager>();
         if (gameManager != null)
         {
             gameManager.StartGame();
-            Debug.Log("StartGame method called from RestartGame.");
         }
 
-        // ?? ?? ?? ???
-        isGameOver = false;
-        Debug.Log("Game state reset. isGameOver set to false.");
+        Debug.Log("Game restarted.");
     }
-
-
 }

@@ -1777,7 +1777,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &404563124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1796,9 +1796,9 @@ MonoBehaviour:
   spawnInterval: 3
   fallSpeed: 2
   obstacleColors:
-  - {r: 1, g: 0, b: 0, a: 0}
-  - {r: 0, g: 0, b: 1, a: 0}
-  - {r: 1, g: 0, b: 1, a: 0}
+  - {r: 1, g: 0.4745098, b: 0.4745098, a: 0}
+  - {r: 0.3529412, g: 0.36078432, b: 1, a: 0}
+  - {r: 0.84705883, g: 0.39215687, b: 1, a: 0}
 --- !u!4 &404563125
 Transform:
   m_ObjectHideFlags: 0
@@ -1947,7 +1947,7 @@ GameObject:
   - component: {fileID: 425385354}
   m_Layer: 0
   m_Name: ScrollingTile
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1984,9 +1984,9 @@ MonoBehaviour:
   lineHeight: 2
   moveSpeed: 2
   lineColors:
-  - {r: 0, g: 0, b: 1, a: 0}
-  - {r: 1, g: 0, b: 1, a: 0}
-  - {r: 1, g: 0, b: 0, a: 0}
+  - {r: 0.3529412, g: 0.36078432, b: 1, a: 0}
+  - {r: 0.84705883, g: 0.39215687, b: 1, a: 0}
+  - {r: 1, g: 0.4745098, b: 0.4745098, a: 0}
 --- !u!1 &428690997
 GameObject:
   m_ObjectHideFlags: 0
@@ -2960,7 +2960,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &678412053
 Transform:
   m_ObjectHideFlags: 0
@@ -5899,7 +5899,7 @@ GameObject:
   - component: {fileID: 1746497286}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5917,12 +5917,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 3
-  redColor: {r: 1, g: 0, b: 0, a: 1}
-  blueColor: {r: 0, g: 0, b: 1, a: 1}
-  purpleColor: {r: 1, g: 0, b: 1, a: 1}
+  redColor: {r: 1, g: 0.4745098, b: 0.4745098, a: 1}
+  blueColor: {r: 0.3529412, g: 0.36078432, b: 1, a: 1}
+  purpleColor: {r: 0.84705883, g: 0.39215687, b: 1, a: 1}
   scoreText: {fileID: 2141883554}
   FinalScoreText: {fileID: 132175505}
   gameOverPanel: {fileID: 1626081973}
+  gmaeUIPanel: {fileID: 1810066296}
 --- !u!212 &1746497284
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -5968,7 +5969,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 0, b: 1, a: 1}
+  m_Color: {r: 0.84705883, g: 0.39215687, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -6055,7 +6056,7 @@ Rigidbody2D:
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!1 &1774946487
 GameObject:
   m_ObjectHideFlags: 0
@@ -6074,7 +6075,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1774946488
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6158,7 +6159,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 464, y: 1002}
+  m_AnchoredPosition: {x: 553.67, y: 1002}
   m_SizeDelta: {x: 1080, y: 1920}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1810066296
@@ -6212,7 +6213,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.392}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

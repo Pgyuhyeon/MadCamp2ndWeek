@@ -7,12 +7,22 @@ public class MainMenu : MonoBehaviour
     public GameObject mainMenuPanel; // MainMenuPanel
     public GameManager gameManager; // GameManager 참조
     public GameObject LoginPanel;
+    public GameObject LeaderBoard;
 
     void Start()
     {
-        if(LoginPanel!=null)
+        Initialize();
+    }
+
+    public void Initialize()
+    {
+        if (LoginPanel != null)
             LoginPanel.SetActive(false);
-            
+
+        if (LeaderBoard != null)
+            LeaderBoard.SetActive(false);
+
+
         if (startPanel != null)
             startPanel.SetActive(false); // 스타트 패널 비활성화
 
@@ -56,7 +66,8 @@ public class MainMenu : MonoBehaviour
     public void OpenLeaderboard()
     {
         Debug.Log("Opening Leaderboard");
-        SceneManager.LoadScene("LeaderboardScene");
+        mainMenuPanel.SetActive(false);
+        LeaderBoard.SetActive(true);
     }
 
     public void OpenSettings()

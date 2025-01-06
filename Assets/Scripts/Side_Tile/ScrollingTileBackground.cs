@@ -74,6 +74,9 @@ public class ScrollingLinesBackground : MonoBehaviour
 
         GameObject line = Instantiate(linePrefab, new Vector3(xPosition, yPosition, 0), Quaternion.identity);
         line.transform.localScale = new Vector3(lineWidth, lineHeight, 1);
+
+        line.tag = "Wall";
+
         SetRandomColor(line);
 
         activeLines.Add(line); // 리스트에 추가

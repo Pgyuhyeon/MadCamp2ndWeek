@@ -19,8 +19,6 @@ public class GameManager : MonoBehaviour
         // 메인 메뉴 패널 비활성화, 스타트 패널 활성화
         SetPanelState(false, true, false, false);
 
-        
-
 
         waitingForStart = true; // 스타트 패널 터치 대기
         Debug.Log($"waitingForStart set to {waitingForStart}");

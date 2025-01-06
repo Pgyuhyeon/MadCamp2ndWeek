@@ -15,7 +15,7 @@ public class FallingObstacles : MonoBehaviour
     void Start()
     {
         // 카메라 화면 너비의 절반 계산
-        screenWidthHalf = Camera.main.orthographicSize * Camera.main.aspect - 0.5f;
+        screenWidthHalf = Camera.main.orthographicSize * Camera.main.aspect - 1.5f;
 
         if (obstacleColors.Length == 0)
         {
@@ -62,16 +62,23 @@ public class FallingObstacles : MonoBehaviour
             Color randomColor = obstacleColors[Random.Range(0, obstacleColors.Length)];
             randomColor.a = 1.0f; // 알파 값(투명도)을 1로 설정
             renderer.color = randomColor;
-
-
         }
 
-        // 장애물 이동 속도 설정
-        Rigidbody2D rb = obstacle.AddComponent<Rigidbody2D>();
+        // Rigidbody2D 중복 추가 방지
+        Rigidbody2D rb = obstacle.GetComponent<Rigidbody2D>();
+        if (rb == null) // Rigidbody2D가 없는 경우에만 추가
+        {
+            rb = obstacle.AddComponent<Rigidbody2D>();
+        }
+
         rb.gravityScale = 0; // 중력 효과 제거
         rb.linearVelocity = Vector2.down * fallSpeed; // 아래로 이동
 
-        // 화면 아래로 벗어나면 해제
-        obstacle.AddComponent<DestroyWhenOffScreen>();
+        // 화면 아래로 벗어나면 제거
+        if (obstacle.GetComponent<DestroyWhenOffScreen>() == null)
+        {
+            obstacle.AddComponent<DestroyWhenOffScreen>();
+        }
     }
+
 }
