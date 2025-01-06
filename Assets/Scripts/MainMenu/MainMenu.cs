@@ -6,9 +6,13 @@ public class MainMenu : MonoBehaviour
     public GameObject startPanel;    // StartPanel
     public GameObject mainMenuPanel; // MainMenuPanel
     public GameManager gameManager; // GameManager 참조
+    public GameObject LoginPanel;
 
     void Start()
     {
+        if(LoginPanel!=null)
+            LoginPanel.SetActive(false);
+            
         if (startPanel != null)
             startPanel.SetActive(false); // 스타트 패널 비활성화
 
@@ -58,7 +62,8 @@ public class MainMenu : MonoBehaviour
     public void OpenSettings()
     {
         Debug.Log("Opening Settings");
-        SceneManager.LoadScene("SettingsScene");
+        mainMenuPanel.SetActive(false);
+        LoginPanel.SetActive(true);
     }
 
     public void QuitGame()
