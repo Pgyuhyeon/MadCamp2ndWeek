@@ -269,6 +269,7 @@ public class PlayerMovementAndCollision : MonoBehaviour
             SpriteRenderer obstacleRenderer = collision.GetComponent<SpriteRenderer>();
             if (obstacleRenderer != null)
             {
+                TriggerVibration();
                 if (obstacleRenderer.color == spriteRenderer.color)
                 {
                     AddScore(1);
@@ -288,6 +289,21 @@ public class PlayerMovementAndCollision : MonoBehaviour
                 }
             }
         }
+    }
+
+
+    private void TriggerVibration()
+    {
+#if UNITY_ANDROID
+        // Android 진동 예제
+        Handheld.Vibrate();
+        Debug.Log("Vibration Triggered");
+#elif UNITY_IOS
+        // iOS Haptic Feedback 예제
+        Debug.Log("Haptic Feedback Triggered (iOS)");
+#else
+        Debug.Log("Vibration not supported on this platform");
+#endif
     }
 
     private void CreateDestroyEffect(Vector3 position, Color obstacleColor)
