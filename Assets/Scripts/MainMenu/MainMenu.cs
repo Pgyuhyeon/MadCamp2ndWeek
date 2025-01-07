@@ -4,6 +4,7 @@ using UnityEngine.Advertisements;
 
 public class MainMenu : MonoBehaviour
 {
+    public GameObject SettingPanel;
     public GameObject startPanel;    // StartPanel
     public GameObject mainMenuPanel; // MainMenuPanel
     public GameManager gameManager; // GameManager 참조
@@ -51,6 +52,10 @@ public class MainMenu : MonoBehaviour
 
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
+
+        if (SettingPanel != null)
+            SettingPanel.SetActive(false);
+
 
 
 
@@ -105,7 +110,7 @@ public class MainMenu : MonoBehaviour
     {
         Debug.Log("Opening Settings");
         mainMenuPanel.SetActive(false);
-        LoginPanel.SetActive(true);
+        SettingPanel.SetActive(true);
     }
 
     public void QuitGame()
