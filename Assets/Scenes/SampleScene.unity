@@ -3676,6 +3676,8 @@ MonoBehaviour:
   gameManager: {fileID: 2072483}
   LoginPanel: {fileID: 154628299}
   LeaderBoard: {fileID: 1626032173}
+  gameOverPanel: {fileID: 0}
+  player: {fileID: 0}
   gameid: 5769898
 --- !u!1 &961841005
 GameObject:
@@ -6631,9 +6633,9 @@ MonoBehaviour:
   moveSpeed: 2
   maxSpeed: 4
   speedIncreaseRate: 0.1
-  redColor: {r: 1, g: 0.4745098, b: 0.4745098, a: 1}
-  blueColor: {r: 0.3529412, g: 0.36078432, b: 1, a: 1}
-  purpleColor: {r: 0.84705883, g: 0.39215687, b: 1, a: 1}
+  redColor: {r: 1, g: 0.25490198, b: 0.19215687, a: 1}
+  blueColor: {r: 0, g: 0.45882353, b: 1, a: 1}
+  purpleColor: {r: 0.81960785, g: 0, b: 1, a: 1}
   scoreText: {fileID: 2141883554}
   FinalScoreText: {fileID: 132175505}
   BestScoreText: {fileID: 1298930906}
@@ -6685,7 +6687,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.84705883, g: 0.39215687, b: 1, a: 1}
+  m_Color: {r: 0.81960785, g: 0, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
