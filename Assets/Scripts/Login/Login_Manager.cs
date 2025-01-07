@@ -65,6 +65,9 @@ public class Login_Manager : MonoBehaviour
             if (request.responseCode == 200)
             {
                 Debug.Log("Login Successful");
+
+                SaveUserDataLocally(username);
+
                 PlayerPrefs.SetInt("IsLoggedIn", 1);
                 PlayerPrefs.Save();
                 LoginPanel.SetActive(false);
@@ -86,5 +89,21 @@ public class Login_Manager : MonoBehaviour
         clear_input();
         LoginPanel.SetActive(false);
         RegisterPanel.SetActive(true);
+    }
+
+    private void SaveUserDataLocally(string username)
+    {
+        // 사용자 ID 저장
+        PlayerPrefs.SetString("Username", username);
+
+
+
+
+        //서버에서 받아온 최고점수를 로컬에 저장하는 코드 //
+
+
+
+
+        Debug.Log($"User data saved locally: Username={username}, HighScore={PlayerPrefs.GetInt("HighScore")}");
     }
 }

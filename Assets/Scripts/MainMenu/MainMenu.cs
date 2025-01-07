@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Advertisements;
 
 public class MainMenu : MonoBehaviour
 {
@@ -8,9 +9,25 @@ public class MainMenu : MonoBehaviour
     public GameManager gameManager; // GameManager 참조
     public GameObject LoginPanel;
     public GameObject LeaderBoard;
+    [SerializeField] private string gameid = "5769898";
+    private bool testMode = true;
+
+    //void Awake()
+    //{
+    //    // Unity Ads 초기화
+    //    if (Advertisement.isSupported && !Advertisement.isInitialized)
+    //    {
+    //        Advertisement.Initialize(gameid, testMode);
+    //        Debug.Log("Unity Ads Initialized in MainMenu!");
+    //    }
+    //    Debug.Log("Ad state : " + Advertisement.isSupported);
+    //}
 
     void Start()
     {
+
+        //Advertisement.Show("test_ad");
+        Debug.Log("Show Ads please...");
         Initialize();
     }
 

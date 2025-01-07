@@ -61,6 +61,10 @@ public class Register_Manager : MonoBehaviour
             if (request.responseCode == 201) // 201 Created
             {
                 Debug.Log("Register Successful");
+
+                
+
+
                 // 회원가입 성공 시 로그인 화면으로 이동
                 LoginPanel.SetActive(true);
                 RegisterPanel.SetActive(false);
@@ -78,5 +82,13 @@ public class Register_Manager : MonoBehaviour
         {
             Debug.LogError("Error: " + request.error);
         }
+
+
+
     }
+
+
+
+   
+
 }

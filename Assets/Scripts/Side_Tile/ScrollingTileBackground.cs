@@ -7,11 +7,14 @@ public class ScrollingLinesBackground : MonoBehaviour
     public float lineWidth = 0.2f; // 선의 너비
     public float lineHeight = 1.0f; // 선의 높이
     public float moveSpeed = 2.0f; // 선의 이동 속도
+    public float speedIncreaseRate = 0.1f; // 속도 증가율 (초당 증가)
+    public float maxMoveSpeed = 10.0f; // 최대 이동 속도
     public Color[] lineColors; // 선 색상 배열
 
     private List<GameObject> activeLines; // 현재 활성화된 선 리스트
     private float screenHeight; // 화면 높이
     private float spawnOffset = 2.0f; // 화면 위로 미리 생성할 오프셋
+    private float elapsedTime = 0f; // 경과 시간
 
     private void Start()
     {
@@ -45,6 +48,13 @@ public class ScrollingLinesBackground : MonoBehaviour
 
     private void Update()
     {
+
+        // 경과 시간 업데이트
+        elapsedTime += Time.deltaTime;
+
+        // 이동 속도 점진적으로 증가 (최대 속도 제한)
+        moveSpeed = Mathf.Min(moveSpeed + speedIncreaseRate * Time.deltaTime, maxMoveSpeed);
+
         // 모든 선 이동
         foreach (var line in activeLines)
         {

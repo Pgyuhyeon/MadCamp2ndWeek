@@ -5,7 +5,11 @@ using TMPro;
 public class PlayerMovementAndCollision : MonoBehaviour
 {
     [Header("Player Settings")]
-    public float moveSpeed = 5.0f;
+    public float moveSpeed = 1.0f; // ?? ??
+    public float maxSpeed = 4.0f; // ?? ???
+    public float speedIncreaseRate = 0.1f; // ?? ??? ??
+
+
     public Color redColor = Color.red;
     public Color blueColor = Color.blue;
     public Color purpleColor = Color.magenta;
@@ -13,8 +17,12 @@ public class PlayerMovementAndCollision : MonoBehaviour
     [Header("UI Elements")]
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI FinalScoreText;
+    public TextMeshProUGUI BestScoreText;
+
     public GameObject gameOverPanel;
     public GameObject gmaeUIPanel;
+
+    public GameObject destroyEffectPrefab;
 
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
@@ -25,10 +33,27 @@ public class PlayerMovementAndCollision : MonoBehaviour
     private float rightClickTime = -1.0f;
     private float simultaneousClickThreshold = 0.08f;
 
-    void Start()
+
+
+    
+    public void StopBall()
     {
-        InitializePlayer();
+        if (rb != null)
+        {
+            Vector3 startPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.3f, Camera.main.nearClipPlane));
+            startPosition.z = 0; // Z?? 0?? ?? (2D ???)
+            transform.position = startPosition;
+
+            rb.linearVelocity = Vector2.zero; // ??? ???
+            rb.angularVelocity = 0f;   // ?? ?? ???
+            Debug.Log("Ball has been stopped.");
+        }
+        else
+        {
+            Debug.LogWarning("Rigidbody2D component is null. Ball cannot be stopped.");
+        }
     }
+
 
     public void InitializePlayer()
     {
@@ -45,7 +70,7 @@ public class PlayerMovementAndCollision : MonoBehaviour
         }
 
         // Reset player position and velocity
-        transform.position = Vector3.zero;
+        
         rb.linearVelocity = new Vector2(moveSpeed, 0);
         rb.angularVelocity = 0f;
         Debug.Log($"Player initialized: Position={transform.position}, Velocity={rb.linearVelocity}");
@@ -65,6 +90,14 @@ public class PlayerMovementAndCollision : MonoBehaviour
         Debug.Log("Player state reset. isGameOver set to false.");
     }
 
+    private void UpdateScoreText()
+    {
+        if (scoreText != null)
+        {
+            scoreText.text = Mathf.FloorToInt(score).ToString();
+        }
+    }
+
     void Update()
     {
         if (isGameOver)
@@ -74,7 +107,22 @@ public class PlayerMovementAndCollision : MonoBehaviour
         }
 
         HandleInput();
-        UpdateScore();
+        IncreaseSpeedOverTime();
+        
+    }
+
+    private void IncreaseSpeedOverTime()
+    {
+        if (rb != null && rb.linearVelocity.magnitude < maxSpeed)
+        {
+            float speedIncrease = speedIncreaseRate * Time.deltaTime;
+            rb.linearVelocity += rb.linearVelocity.normalized * speedIncrease;
+
+            if (rb.linearVelocity.magnitude > maxSpeed)
+            {
+                rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
+            }
+        }
     }
 
     private void HandleInput()
@@ -146,56 +194,64 @@ public class PlayerMovementAndCollision : MonoBehaviour
         UpdateScoreText();
     }
 
-    private void UpdateScoreText()
-    {
-        if (scoreText != null)
-        {
-            scoreText.text = Mathf.FloorToInt(score).ToString();
-            Debug.Log($"Score updated: {scoreText.text}");
-        }
-    }
+
+
+    private bool canCollide = true; // ?? ?? ??
+    private float collisionCooldown = 0.5f; // ?? ??? ??
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (isGameOver)
+        if (isGameOver || !canCollide)
         {
-            Debug.Log("Collision ignored because game is over.");
             return;
         }
 
         if (collision.gameObject.CompareTag("Wall"))
         {
             SpriteRenderer wallRenderer = collision.gameObject.GetComponent<SpriteRenderer>();
-            if (wallRenderer != null)
+            if (wallRenderer == null)
             {
-                if (wallRenderer.color != spriteRenderer.color)
-                {
-                    Debug.Log("Wall color does not match. Game Over triggered.");
-                    GameOver();
-                }
-                else
-                {
-                    // ??? ????? ?? ???
-                    Vector2 pushDirection = new Vector2(-Mathf.Sign(rb.linearVelocity.x), 0); // ?? ??
-                    transform.position += (Vector3)pushDirection * 0.1f; // ??? ?? ???
+                Debug.LogWarning("Wall does not have a SpriteRenderer. Ignoring collision.");
+                return;
+            }
 
-                    // ?? ??
-                    float currentSpeed = Mathf.Abs(rb.linearVelocity.x);
-                    if (currentSpeed < 0.1f)
-                    {
-                        currentSpeed = moveSpeed; // ?? ?? ??
-                    }
-                    rb.linearVelocity = new Vector2(-currentSpeed, rb.linearVelocity.y);
-
-                    Debug.Log($"Wall color matches. Player direction reversed. New Velocity: {rb.linearVelocity}");
-                }
+            if (wallRenderer.color != spriteRenderer.color)
+            {
+                Debug.Log("Wall color mismatch. Game Over triggered.");
+                GameOver();
             }
             else
             {
-                Debug.LogWarning("Wall does not have a SpriteRenderer.");
+                AddScore(1);
+
+                // ?? ??
+                Vector2 collisionNormal = collision.contacts[0].normal;
+                float currentSpeed = rb.linearVelocity.magnitude;
+                if (currentSpeed < 0.1f)
+                {
+                    currentSpeed = moveSpeed;
+                }
+                rb.linearVelocity = -collisionNormal * currentSpeed;
+
+                Debug.Log($"Wall collision resolved. New Velocity: {rb.linearVelocity}");
             }
+
+            // ?? ??? ??
+            canCollide = false;
+            Invoke(nameof(EnableCollision), collisionCooldown);
         }
     }
+
+    private void EnableCollision()
+    {
+        canCollide = true; // ?? ?? ??? ??
+    }
+
+
+
+
+
+
 
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -215,11 +271,15 @@ public class PlayerMovementAndCollision : MonoBehaviour
                 {
                     AddScore(1);
                     TriggerCollisionEvent(collision.gameObject);
+                    CreateDestroyEffect(collision.transform.position, obstacleRenderer.color);
+
                     Destroy(collision.gameObject); // ??? ??
                     Debug.Log("Obstacle destroyed. Score increased.");
                 }
                 else
                 {
+                    CreateDestroyEffect(collision.transform.position, obstacleRenderer.color);
+
                     Destroy(collision.gameObject); // ??? ??
                     Debug.Log("Obstacle destroyed. Game Over triggered.");
                     GameOver();
@@ -228,6 +288,25 @@ public class PlayerMovementAndCollision : MonoBehaviour
         }
     }
 
+    private void CreateDestroyEffect(Vector3 position, Color obstacleColor)
+    {
+        if (destroyEffectPrefab != null)
+        {
+            // ??? ??
+            GameObject effect = Instantiate(destroyEffectPrefab, position, Quaternion.identity);
+
+            // Particle System? Start Color? ??? ???? ??
+            ParticleSystem particleSystem = effect.GetComponent<ParticleSystem>();
+            if (particleSystem != null)
+            {
+                var main = particleSystem.main;
+                main.startColor = obstacleColor; // ???? ??? ??
+            }
+
+            // ?? ?? ? ??
+            Destroy(effect, 0.5f);
+        }
+    }
 
 
 
@@ -297,6 +376,9 @@ public class PlayerMovementAndCollision : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
         }
 
+
+        UpdateHighScore();//???? ??
+
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(true);
@@ -326,4 +408,30 @@ public class PlayerMovementAndCollision : MonoBehaviour
 
         Debug.Log("Game restarted.");
     }
+
+
+    private void UpdateHighScore()
+    {
+        // ?? ??? ?? ?? ????
+        int highScore = PlayerPrefs.GetInt("HighScore", 0);
+
+        // ?? ??? ?? ???? ?? ?? ??
+        if (Mathf.FloorToInt(score) > highScore)
+        {
+            highScore = Mathf.FloorToInt(score);
+            PlayerPrefs.SetInt("HighScore", highScore);
+            PlayerPrefs.Save();
+
+            Debug.Log($"New High Score! HighScore={highScore}");
+        }
+        else
+        {
+            Debug.Log($"Current Score={Mathf.FloorToInt(score)}. HighScore remains={highScore}");
+        }
+
+        BestScoreText.text = highScore.ToString();
+    }
+
+    
+    
 }

@@ -6,7 +6,7 @@ public class FallingObstacles : MonoBehaviour
     public float obstacleSizeMin = 0.5f; // 장애물 최소 크기
     public float obstacleSizeMax = 0.8f; // 장애물 최대 크기
     public float spawnInterval = 1.0f; // 생성 간격
-    public float fallSpeed = 2.0f; // 장애물 속도
+    public float fallSpeed = 3.5f; // 장애물 속도
     public Color[] obstacleColors; // 장애물 색상 배열 (랜덤 선택)
 
     private float screenWidthHalf; // 화면 너비의 절반

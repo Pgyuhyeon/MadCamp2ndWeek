@@ -9,16 +9,40 @@ public class GameManager : MonoBehaviour
     public GameObject gameOverPanel;  // 게임 오버 패널
     public GameObject player;         // 플레이어 오브젝트
 
+    public GameObject obstacleFalling;
+
+    
+
     private bool gameStarted = false; // 게임 시작 상태
     private bool waitingForStart = false; // 스타트 패널 터치 대기 상태
+
+
+    void RemoveAllObstaclesByTag(string tag)
+    {
+        GameObject[] obstacles = GameObject.FindGameObjectsWithTag(tag);
+
+        foreach (GameObject obstacle in obstacles)
+        {
+            Destroy(obstacle);
+        }
+        Debug.Log($"All obstacles with tag '{tag}' have been removed.");
+    }
+
 
     public void StartGame()
     {
         Debug.Log("Game Start button clicked");
 
-        // 메인 메뉴 패널 비활성화, 스타트 패널 활성화
-        SetPanelState(false, true, false, false);
+        obstacleFalling.SetActive(false);
+        RemoveAllObstaclesByTag("Obstacle");
 
+        // 메인 메뉴 패널 비활성화, 스타트 패널 활성화
+        SetPanelState(false, true, false, true);
+
+        PlayerMovementAndCollision playerScript = player.GetComponent<PlayerMovementAndCollision>();
+        playerScript.StopBall();
+
+        if (startPanel != null) startPanel.SetActive(true);
 
         waitingForStart = true; // 스타트 패널 터치 대기
         Debug.Log($"waitingForStart set to {waitingForStart}");
@@ -27,6 +51,8 @@ public class GameManager : MonoBehaviour
     private void StartGameplay()
     {
         Debug.Log("Gameplay started");
+
+        obstacleFalling.SetActive(true);
 
         // 게임 UI 활성화, 플레이어 활성화
         SetPanelState(false, false, true, true);
