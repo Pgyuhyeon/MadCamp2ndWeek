@@ -15,6 +15,7 @@ public class Login_Manager : MonoBehaviour
     public GameObject LoginPanel;
     public GameObject Player;
     public GameObject RegisterPanel;
+    public GameObject mainMenuPanel;
     private string Login_server_url = "http://43.202.48.66:3000/login";
 
     void Awake()
@@ -22,12 +23,14 @@ public class Login_Manager : MonoBehaviour
         PlayerPrefs.SetInt("IsLoggedIn", 0); // 로그인 상태 초기화
         PlayerPrefs.Save();
     }
+
     void Start()
     {
-        if(PlayerPrefs.GetInt("IsLoggedIn", 0)==1)
+        if (PlayerPrefs.GetInt("IsLoggedIn", 0) == 1)
         {
             LoginPanel.SetActive(false);
             Player.SetActive(true);
+            mainMenuPanel.SetActive(true);
         }
         else
         {
@@ -38,8 +41,8 @@ public class Login_Manager : MonoBehaviour
 
     public void clear_input()
     {
-        Username_input.text="";
-        Password_input.text="";
+        Username_input.text = "";
+        Password_input.text = "";
     }
 
     public void App_Login_button_click()
@@ -59,6 +62,7 @@ public class Login_Manager : MonoBehaviour
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         yield return request.SendWebRequest();
+
         // 응답 처리
         if (request.result == UnityWebRequest.Result.Success)
         {
@@ -66,12 +70,16 @@ public class Login_Manager : MonoBehaviour
             {
                 Debug.Log("Login Successful");
 
-                SaveUserDataLocally(username);
+                // 서버 응답 데이터 파싱 및 로컬 저장
+                UserData userData = JsonUtility.FromJson<UserData>(request.downloadHandler.text);
+                SaveUserDataLocally(userData);
+                Debug.Log("Server Response: " + request.downloadHandler.text);
 
                 PlayerPrefs.SetInt("IsLoggedIn", 1);
                 PlayerPrefs.Save();
+                clear_input();
                 LoginPanel.SetActive(false);
-                Player.SetActive(true);
+                mainMenuPanel.SetActive(true);
             }
             else if (request.responseCode == 401)
             {
@@ -83,6 +91,7 @@ public class Login_Manager : MonoBehaviour
             Debug.Log("Error: " + request.error);
         }
     }
+
     public void App_Register_button_click()
     {
         Debug.Log("I clicked Register Button");
@@ -91,19 +100,20 @@ public class Login_Manager : MonoBehaviour
         RegisterPanel.SetActive(true);
     }
 
-    private void SaveUserDataLocally(string username)
+    private void SaveUserDataLocally(UserData userData)
     {
-        // 사용자 ID 저장
-        PlayerPrefs.SetString("Username", username);
+        PlayerPrefs.SetString("Username", userData.username);
+        PlayerPrefs.SetInt("HighestScore", userData.highest_score);
+        PlayerPrefs.Save();
 
+        Debug.Log($"User data saved locally: Username={userData.username}, HighestScore={userData.highest_score}");
+    }
 
-
-
-        //서버에서 받아온 최고점수를 로컬에 저장하는 코드 //
-
-
-
-
-        Debug.Log($"User data saved locally: Username={username}, HighScore={PlayerPrefs.GetInt("HighScore")}");
+    [System.Serializable]
+    public class UserData
+    {
+        public int id;
+        public string username;
+        public int highest_score;
     }
 }
