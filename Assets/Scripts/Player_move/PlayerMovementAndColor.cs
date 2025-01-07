@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
+using UnityEngine.Networking;
 
 public class PlayerMovementAndCollision : MonoBehaviour
 {
@@ -413,15 +415,19 @@ public class PlayerMovementAndCollision : MonoBehaviour
     private void UpdateHighScore()
     {
         // ?? ??? ?? ?? ????
-        int highScore = PlayerPrefs.GetInt("HighScore", 0);
+        int highScore = PlayerPrefs.GetInt("HighestScore", 0);
 
         // ?? ??? ?? ???? ?? ?? ??
         if (Mathf.FloorToInt(score) > highScore)
         {
             highScore = Mathf.FloorToInt(score);
-            PlayerPrefs.SetInt("HighScore", highScore);
+            PlayerPrefs.SetInt("HighestScore", highScore);
             PlayerPrefs.Save();
-
+            if (PlayerPrefs.GetInt("IsLoggedIn", 0) == 1)
+            {
+                Debug.Log($"New Record={highScore}");
+                StartCoroutine(UpdateHighScoreOnServer(highScore));
+            }
             Debug.Log($"New High Score! HighScore={highScore}");
         }
         else
@@ -432,6 +438,26 @@ public class PlayerMovementAndCollision : MonoBehaviour
         BestScoreText.text = highScore.ToString();
     }
 
-    
-    
+    private IEnumerator UpdateHighScoreOnServer(int newHighScore)
+{
+    string updateScoreUrl = "http://43.202.48.66:3000/update-score";
+    string jsonData = $"{{\"username\":\"{PlayerPrefs.GetString("Username")}\",\"highest_score\":{newHighScore}}}";
+
+    UnityWebRequest request = new UnityWebRequest(updateScoreUrl, "POST");
+    byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+    request.downloadHandler = new DownloadHandlerBuffer();
+    request.SetRequestHeader("Content-Type", "application/json");
+
+    yield return request.SendWebRequest();
+
+    if (request.result == UnityWebRequest.Result.Success)
+    {
+        Debug.Log("High score updated successfully on the server!");
+    }
+    else
+    {
+        Debug.LogError("Failed to update high score: " + request.error);
+    }
+}
 }
