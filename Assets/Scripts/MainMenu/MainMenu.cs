@@ -15,23 +15,26 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private string gameid = "5769898";
     private bool testMode = true;
 
-    //void Awake()
-    //{
-    //    // Unity Ads 초기화
-    //    if (Advertisement.isSupported && !Advertisement.isInitialized)
-    //    {
-    //        Advertisement.Initialize(gameid, testMode);
-    //        Debug.Log("Unity Ads Initialized in MainMenu!");
-    //    }
-    //    Debug.Log("Ad state : " + Advertisement.isSupported);
-    //}
-
     void Start()
     {
-
         //Advertisement.Show("test_ad");
         Debug.Log("Show Ads please...");
         Initialize();
+    }
+
+    void OnEnable()
+    {
+        // 로그인 후 사용자 정보 표시
+        if (PlayerPrefs.GetInt("IsLoggedIn", 0) == 1)
+        {
+            string username = PlayerPrefs.GetString("Username", "Guest");
+            int highestScore = PlayerPrefs.GetInt("HighestScore", 0);
+            Debug.Log($"Welcome back, {username}! Your highest score: {highestScore}");
+        }
+        else
+        {
+            Debug.Log("User is not logged in.");
+        }
     }
 
     public void Initialize()
@@ -45,8 +48,11 @@ public class MainMenu : MonoBehaviour
         if (LeaderBoard != null)
             LeaderBoard.SetActive(false);
 
+
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
+
+
 
         if (startPanel != null)
             startPanel.SetActive(false); // 스타트 패널 비활성화

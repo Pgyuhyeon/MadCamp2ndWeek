@@ -173,7 +173,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      house-chimney-solid_0: 1998057339628284661
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
