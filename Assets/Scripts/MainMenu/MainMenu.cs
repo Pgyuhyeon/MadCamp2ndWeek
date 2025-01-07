@@ -9,6 +9,9 @@ public class MainMenu : MonoBehaviour
     public GameManager gameManager; // GameManager 참조
     public GameObject LoginPanel;
     public GameObject LeaderBoard;
+    public GameObject gameOverPanel;
+    public GameObject player;
+
     [SerializeField] private string gameid = "5769898";
     private bool testMode = true;
 
@@ -36,9 +39,14 @@ public class MainMenu : MonoBehaviour
         if (LoginPanel != null)
             LoginPanel.SetActive(false);
 
+        if (player != null)
+            player.SetActive(false);
+
         if (LeaderBoard != null)
             LeaderBoard.SetActive(false);
 
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
 
         if (startPanel != null)
             startPanel.SetActive(false); // 스타트 패널 비활성화
