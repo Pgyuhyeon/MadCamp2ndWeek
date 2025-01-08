@@ -63,7 +63,7 @@ public class VibrationToggleController : MonoBehaviour
     {
         // 진동 상태 확인
         bool isVibrationOn = PlayerPrefs.GetInt(VibrationPrefKey, 0) == 1;
-
+        Debug.Log($"Vibration? : {isVibrationOn}");
         if (isVibrationOn)
         {
 #if UNITY_ANDROID

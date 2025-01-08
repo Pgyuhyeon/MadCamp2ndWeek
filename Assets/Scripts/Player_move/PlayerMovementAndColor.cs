@@ -258,6 +258,7 @@ public class PlayerMovementAndCollision : MonoBehaviour
                 // 진동 상태 확인 후 트리거
                 if (PlayerPrefs.GetInt(VibrationPrefKey, 0) == 1)
                 {
+                    Debug.Log("what the....");
                     TriggerVibration();
                 }
 
