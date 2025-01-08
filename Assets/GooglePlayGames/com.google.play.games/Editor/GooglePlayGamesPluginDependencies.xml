@@ -1,0 +1,5 @@
+<dependencies>
+  <androidPackage spec="com.google.android.gms:play-services-games:20.0.0" />
+  <androidPackage spec="com.google.android.gms:play-services-auth:20.2.0" />
+  <androidPackage spec="androidx.annotation:annotation:1.6.0" />
+</dependencies>

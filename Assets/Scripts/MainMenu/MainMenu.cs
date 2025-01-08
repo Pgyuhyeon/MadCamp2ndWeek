@@ -157,6 +157,7 @@ public class MainMenu : MonoBehaviour
     public void OpenSettings()
     {
         Debug.Log("Opening Settings");
+        gameOverPanel.SetActive(false);
         mainMenuPanel.SetActive(false);
         SettingPanel.SetActive(true);
     }
