@@ -21,8 +21,8 @@ public class Login_Manager : MonoBehaviour
     void Awake() // 디버그용 상태 초기화
     {
         PlayerPrefs.SetInt("IsLoggedIn", 0); // 로그인 상태 초기화
-        PlayerPrefs.Save();
         PlayerPrefs.SetInt("HighestScore", 0); // 최고 점수 초기화
+        PlayerPrefs.Save();
         Debug.Log($"Login : {PlayerPrefs.GetInt("IsLoggedIn", 0)}");
     }
 

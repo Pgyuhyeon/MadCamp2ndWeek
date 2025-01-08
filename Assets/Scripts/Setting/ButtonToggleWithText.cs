@@ -13,6 +13,7 @@ public class ButtonToggleController : MonoBehaviour
     public string offText = "Sound Off";   // Off 상태 텍스트
 
     private bool isOn = true;              // 버튼 상태 (초기값: On 상태)
+    public AudioSource sounds;
 
     void Start()
     {
@@ -53,15 +54,7 @@ public class ButtonToggleController : MonoBehaviour
     void SetAudioState(bool isAudioOn)
     {
         // AudioListener를 사용해 소리 상태 변경
-        AudioListener.volume = isAudioOn ? 1f : 0f;
-
-        if (isAudioOn)
-        {
-            Debug.Log("Audio is now ON");
-        }
-        else
-        {
-            Debug.Log("Audio is now OFF");
-        }
+        sounds.mute = !isAudioOn;
+        Debug.Log($"Audio is now {(isAudioOn ? "ON" : "OFF")}");
     }
 }

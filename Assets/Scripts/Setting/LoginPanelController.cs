@@ -37,6 +37,14 @@ public class LoginPanelController : MonoBehaviour
         // 로그인 패널 활성화/비활성화
         loginPanel.SetActive(isLoginOn);
 
+        if(!isLoginOn)
+        {
+            PlayerPrefs.SetInt("IsLoggedIn", 0); // 로그인 상태 초기화
+            PlayerPrefs.SetInt("HighestScore", 0); // 최고 점수 초기화
+            PlayerPrefs.Save();
+            Debug.Log("Logout it");
+        }
+
         // 설정 패널 비활성화
         settingsPanel.SetActive(!isLoginOn);
 

@@ -95,6 +95,11 @@ public class RankingManager : MonoBehaviour
                 // username은 왼쪽, highest_score는 오른쪽에 표시
                 textComponents[0].text = user.username; // username 표시
                 textComponents[1].text = user.highest_score.ToString(); // highest_score 표시
+                if(PlayerPrefs.GetInt("IsLoggedIn", 0) == 1 && PlayerPrefs.GetString("Username")==textComponents[0].text)
+                {
+                    textComponents[0].color = Color.yellow; // username 색상 변경
+                    textComponents[1].color = Color.yellow;
+                }
             }
             else
             {
