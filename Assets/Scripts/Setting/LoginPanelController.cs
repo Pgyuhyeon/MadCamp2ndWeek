@@ -36,14 +36,12 @@ public class LoginPanelController : MonoBehaviour
 
     void ToggleLoginPanel()
     {
+        isLoginOn = PlayerPrefs.GetInt(LoginPrefKey, 0) == 1;
         // 상태 변경
         isLoginOn = !isLoginOn;
 
-        // 상태 저장
         PlayerPrefs.SetInt(LoginPrefKey, isLoginOn ? 1 : 0);
         PlayerPrefs.Save();
-
-        // UI 업데이트
         UpdateButtonUI();
 
         // 로그인 패널 활성화/비활성화

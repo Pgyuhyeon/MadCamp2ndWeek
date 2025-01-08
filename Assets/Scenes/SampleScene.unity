@@ -6573,8 +6573,8 @@ MonoBehaviour:
   settingsPanel: {fileID: 819549237}
   onSprite: {fileID: 8408448797325785980, guid: 2aed7d16d33a745d5aa2a69216d9580e, type: 3}
   offSprite: {fileID: -4114087690577114240, guid: 22b513bfe03584bec8f9ec859704c9da, type: 3}
-  onText: Login On
-  offText: Login Off
+  onText: LOGIN
+  offText: LOGOUT
 --- !u!114 &1441887614
 MonoBehaviour:
   m_ObjectHideFlags: 0
