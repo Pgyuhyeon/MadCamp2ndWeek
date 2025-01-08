@@ -18,13 +18,13 @@ public class Login_Manager : MonoBehaviour
     public GameObject mainMenuPanel;
     private string Login_server_url = "http://43.202.48.66:3000/login";
 
-    void Awake() // 디버그용 상태 초기화
+    /*void Awake() // 디버그용 상태 초기화
     {
         PlayerPrefs.SetInt("IsLoggedIn", 0); // 로그인 상태 초기화
         PlayerPrefs.SetInt("HighestScore", 0); // 최고 점수 초기화
         PlayerPrefs.Save();
         Debug.Log($"Login : {PlayerPrefs.GetInt("IsLoggedIn", 0)}");
-    }
+    }*/
 
     void Start()
     {

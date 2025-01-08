@@ -7,10 +7,9 @@ using UnityEngine.Networking;
 public class PlayerMovementAndCollision : MonoBehaviour
 {
     [Header("Player Settings")]
-    public float moveSpeed = 1.0f; // ?? ??
-    public float maxSpeed = 4.0f; // ?? ???
-    public float speedIncreaseRate = 0.1f; // ?? ??? ??
-
+    public float moveSpeed = 1.0f; // 초기 속도
+    public float maxSpeed = 4.0f; // 최대 속도
+    public float speedIncreaseRate = 0.1f; // 속도 증가 비율
 
     public Color redColor = Color.red;
     public Color blueColor = Color.blue;
@@ -35,19 +34,18 @@ public class PlayerMovementAndCollision : MonoBehaviour
     private float rightClickTime = -1.0f;
     private float simultaneousClickThreshold = 0.08f;
 
+    private const string VibrationPrefKey = "IsVibrationOn"; // 진동 상태 키
 
-
-    
     public void StopBall()
     {
         if (rb != null)
         {
             Vector3 startPosition = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.3f, Camera.main.nearClipPlane));
-            startPosition.z = 0; // Z?? 0?? ?? (2D ???)
+            startPosition.z = 0; // Z축 위치 고정
             transform.position = startPosition;
 
-            rb.linearVelocity = Vector2.zero; // ??? ???
-            rb.angularVelocity = 0f;   // ?? ?? ???
+            rb.linearVelocity = Vector2.zero; // 속도 초기화
+            rb.angularVelocity = 0f;   // 회전 초기화
             Debug.Log("Ball has been stopped.");
         }
         else
@@ -55,7 +53,6 @@ public class PlayerMovementAndCollision : MonoBehaviour
             Debug.LogWarning("Rigidbody2D component is null. Ball cannot be stopped.");
         }
     }
-
 
     public void InitializePlayer()
     {
@@ -72,7 +69,6 @@ public class PlayerMovementAndCollision : MonoBehaviour
         }
 
         // Reset player position and velocity
-        
         rb.linearVelocity = new Vector2(moveSpeed, 0);
         rb.angularVelocity = 0f;
         Debug.Log($"Player initialized: Position={transform.position}, Velocity={rb.linearVelocity}");
@@ -110,7 +106,6 @@ public class PlayerMovementAndCollision : MonoBehaviour
 
         HandleInput();
         IncreaseSpeedOverTime();
-        
     }
 
     private void IncreaseSpeedOverTime()
@@ -196,10 +191,8 @@ public class PlayerMovementAndCollision : MonoBehaviour
         UpdateScoreText();
     }
 
-
-
-    private bool canCollide = true; // ?? ?? ??
-    private float collisionCooldown = 0.5f; // ?? ??? ??
+    private bool canCollide = true; // 충돌 가능 상태
+    private float collisionCooldown = 0.5f; // 충돌 쿨다운 시간
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -226,7 +219,7 @@ public class PlayerMovementAndCollision : MonoBehaviour
             {
                 AddScore(1);
 
-                // ?? ??
+                // 속도 반전
                 Vector2 collisionNormal = collision.contacts[0].normal;
                 float currentSpeed = rb.linearVelocity.magnitude;
                 if (currentSpeed < 0.1f)
@@ -238,7 +231,7 @@ public class PlayerMovementAndCollision : MonoBehaviour
                 Debug.Log($"Wall collision resolved. New Velocity: {rb.linearVelocity}");
             }
 
-            // ?? ??? ??
+            // 충돌 쿨다운 활성화
             canCollide = false;
             Invoke(nameof(EnableCollision), collisionCooldown);
         }
@@ -246,15 +239,8 @@ public class PlayerMovementAndCollision : MonoBehaviour
 
     private void EnableCollision()
     {
-        canCollide = true; // ?? ?? ??? ??
+        canCollide = true; // 충돌 가능 상태 복원
     }
-
-
-
-
-
-
-
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -269,21 +255,26 @@ public class PlayerMovementAndCollision : MonoBehaviour
             SpriteRenderer obstacleRenderer = collision.GetComponent<SpriteRenderer>();
             if (obstacleRenderer != null)
             {
-                TriggerVibration();
+                // 진동 상태 확인 후 트리거
+                if (PlayerPrefs.GetInt(VibrationPrefKey, 0) == 1)
+                {
+                    TriggerVibration();
+                }
+
                 if (obstacleRenderer.color == spriteRenderer.color)
                 {
                     AddScore(1);
                     TriggerCollisionEvent(collision.gameObject);
                     CreateDestroyEffect(collision.transform.position, obstacleRenderer.color);
 
-                    Destroy(collision.gameObject); // ??? ??
+                    Destroy(collision.gameObject);
                     Debug.Log("Obstacle destroyed. Score increased.");
                 }
                 else
                 {
                     CreateDestroyEffect(collision.transform.position, obstacleRenderer.color);
 
-                    Destroy(collision.gameObject); // ??? ??
+                    Destroy(collision.gameObject);
                     Debug.Log("Obstacle destroyed. Game Over triggered.");
                     GameOver();
                 }
@@ -291,15 +282,12 @@ public class PlayerMovementAndCollision : MonoBehaviour
         }
     }
 
-
     private void TriggerVibration()
     {
 #if UNITY_ANDROID
-        // Android 진동 예제
         Handheld.Vibrate();
         Debug.Log("Vibration Triggered");
 #elif UNITY_IOS
-        // iOS Haptic Feedback 예제
         Debug.Log("Haptic Feedback Triggered (iOS)");
 #else
         Debug.Log("Vibration not supported on this platform");
@@ -310,25 +298,18 @@ public class PlayerMovementAndCollision : MonoBehaviour
     {
         if (destroyEffectPrefab != null)
         {
-            // ??? ??
             GameObject effect = Instantiate(destroyEffectPrefab, position, Quaternion.identity);
 
-            // Particle System? Start Color? ??? ???? ??
             ParticleSystem particleSystem = effect.GetComponent<ParticleSystem>();
             if (particleSystem != null)
             {
                 var main = particleSystem.main;
-                main.startColor = obstacleColor; // ???? ??? ??
+                main.startColor = obstacleColor;
             }
 
-            // ?? ?? ? ??
             Destroy(effect, 0.5f);
         }
     }
-
-
-
-
 
     private void HandleObstacleCollision(GameObject obstacle)
     {
@@ -366,7 +347,6 @@ public class PlayerMovementAndCollision : MonoBehaviour
 
     private void TriggerCollisionEvent(GameObject obj)
     {
-        // ??? ?? ??
         ParticleSystem particle = obj.GetComponent<ParticleSystem>();
         if (particle != null)
         {
@@ -374,10 +354,7 @@ public class PlayerMovementAndCollision : MonoBehaviour
             particle.Play();
             Destroy(particle.gameObject, particle.main.duration);
         }
-
-        
     }
-
 
     private void AddScore(int points)
     {
@@ -394,8 +371,7 @@ public class PlayerMovementAndCollision : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
         }
 
-
-        UpdateHighScore();//???? ??
+        UpdateHighScore();
 
         if (gameOverPanel != null)
         {
@@ -427,13 +403,10 @@ public class PlayerMovementAndCollision : MonoBehaviour
         Debug.Log("Game restarted.");
     }
 
-
     private void UpdateHighScore()
     {
-        // ?? ??? ?? ?? ????
         int highScore = PlayerPrefs.GetInt("HighestScore", 0);
 
-        // ?? ??? ?? ???? ?? ?? ??
         if (Mathf.FloorToInt(score) > highScore)
         {
             highScore = Mathf.FloorToInt(score);
@@ -455,25 +428,25 @@ public class PlayerMovementAndCollision : MonoBehaviour
     }
 
     private IEnumerator UpdateHighScoreOnServer(int newHighScore)
-{
-    string updateScoreUrl = "http://43.202.48.66:3000/update-score";
-    string jsonData = $"{{\"username\":\"{PlayerPrefs.GetString("Username")}\",\"highest_score\":{newHighScore}}}";
-
-    UnityWebRequest request = new UnityWebRequest(updateScoreUrl, "POST");
-    byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
-    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-    request.downloadHandler = new DownloadHandlerBuffer();
-    request.SetRequestHeader("Content-Type", "application/json");
-
-    yield return request.SendWebRequest();
-
-    if (request.result == UnityWebRequest.Result.Success)
     {
-        Debug.Log("High score updated successfully on the server!");
+        string updateScoreUrl = "http://43.202.48.66:3000/update-score";
+        string jsonData = $"{{\"username\":\"{PlayerPrefs.GetString("Username")}\",\"highest_score\":{newHighScore}}}";
+
+        UnityWebRequest request = new UnityWebRequest(updateScoreUrl, "POST");
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            Debug.Log("High score updated successfully on the server!");
+        }
+        else
+        {
+            Debug.LogError("Failed to update high score: " + request.error);
+        }
     }
-    else
-    {
-        Debug.LogError("Failed to update high score: " + request.error);
-    }
-}
 }

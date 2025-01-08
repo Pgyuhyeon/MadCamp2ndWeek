@@ -12,19 +12,32 @@ public class MainMenu : MonoBehaviour
     public GameObject LeaderBoard;
     public GameObject gameOverPanel;
     public GameObject player;
+    public AudioSource backgroundMusic; // 메인 메뉴 배경음악
 
     [SerializeField] private string gameid = "5769898";
     private bool testMode = true;
 
+    private const string SoundPrefKey = "IsSoundOn";
+    private const string VibrationPrefKey = "IsVibrationOn";
+
     void Start()
     {
-        //Advertisement.Show("test_ad");
         Debug.Log("Show Ads please...");
         Initialize();
+
+        // 소리와 진동 상태 초기화
+        InitializeSoundAndVibration();
     }
 
     void OnEnable()
     {
+        // 플레이어 비활성화 (MainMenu에서는 숨기기)
+        if (player != null)
+        {
+            player.SetActive(false);
+            Debug.Log("Player is now hidden in MainMenu.");
+        }
+
         // 로그인 후 사용자 정보 표시
         if (PlayerPrefs.GetInt("IsLoggedIn", 0) == 1)
         {
@@ -49,21 +62,56 @@ public class MainMenu : MonoBehaviour
         if (LeaderBoard != null)
             LeaderBoard.SetActive(false);
 
-
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
 
         if (SettingPanel != null)
             SettingPanel.SetActive(false);
 
-
-
-
         if (startPanel != null)
             startPanel.SetActive(false); // 스타트 패널 비활성화
 
         if (mainMenuPanel != null)
             mainMenuPanel.SetActive(true); // 메인 메뉴 패널 활성화
+    }
+
+    public void InitializeSoundAndVibration()
+    {
+        // 소리 상태 초기화
+        bool isSoundOn = PlayerPrefs.GetInt(SoundPrefKey, 1) == 1; // 기본값: 켜짐
+        if (backgroundMusic != null)
+        {
+            backgroundMusic.mute = !isSoundOn;
+        }
+        Debug.Log($"Sound initialized to: {(isSoundOn ? "On" : "Off")}");
+
+        // 진동 상태 초기화
+        bool isVibrationOn = PlayerPrefs.GetInt(VibrationPrefKey, 1) == 1; // 기본값: 켜짐
+        Debug.Log($"Vibration initialized to: {(isVibrationOn ? "On" : "Off")}");
+    }
+
+    public void ToggleSound(bool isOn)
+    {
+        // 소리 상태 저장
+        PlayerPrefs.SetInt(SoundPrefKey, isOn ? 1 : 0);
+        PlayerPrefs.Save();
+
+        // 배경음 상태 업데이트
+        if (backgroundMusic != null)
+        {
+            backgroundMusic.mute = !isOn;
+        }
+
+        Debug.Log($"Sound toggled to: {(isOn ? "On" : "Off")}");
+    }
+
+    public void ToggleVibration(bool isOn)
+    {
+        // 진동 상태 저장
+        PlayerPrefs.SetInt(VibrationPrefKey, isOn ? 1 : 0);
+        PlayerPrefs.Save();
+
+        Debug.Log($"Vibration toggled to: {(isOn ? "On" : "Off")}");
     }
 
     public void StartGame()
